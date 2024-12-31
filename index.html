@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>Untitled</title>
+  
+
+</head>
+<body>
+<!-- partial:index.partial.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic - Video Streaming App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Bebas Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            background-color: #282828;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            cursor: pointer;
+        }
+
+        .search-bar {
+            flex: 1;
+            margin-left: 20px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #eee;
+            padding: 10px 0;
+            border-top: 1px solid #ddd;
+            border-bottom: 1px solid #ddd;
+        }
+
+        nav img {
+            width: 30px;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .page-content {
+            padding: 20px;
+        }
+
+        .video-list {
+            margin-top: 20px;
+        }
+
+        .video-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+
+        .video-item img {
+            width: 100px;
+            height: 60px;
+            margin-right: 15px;
+        }
+
+        .video-player {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .video-player video {
+            width: 100%;
+            max-width: 800px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        /* Remove the default progress bar */
+        video::-webkit-media-controls-timeline {
+            display: none;
+        }
+
+        /* Circular Progress Bar */
+        .progress-container {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 50px;
+            height: 50px;
+        }
+
+        svg {
+            transform: rotate(-90deg);
+            width: 100%;
+            height: 100%;
+        }
+
+        .progress-circle {
+            stroke: #0000ff; /* Blue color for progress */
+            stroke-width: 5;
+            fill: none;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.1s linear;
+        }
+
+        .progress-background {
+            stroke: #ddd;
+            stroke-width: 5;
+            fill: none;
+        }
+
+        /* Adjust for Landscape Mode */
+        @media (orientation: landscape) {
+            .progress-container {
+                top: 5%;
+                right: 5%;
+                width: 60px;
+                height: 60px;
+            }
+
+            .video-player video {
+                max-width: 90%;
+            }
+
+            .progress-circle {
+                stroke-width: 6; /* Slightly thicker for visibility in landscape */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo" onclick="navigateTo('home')">Magic</div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search videos..." oninput="searchVideos(event)">
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <img src="https://i.imgur.com/CMpHtMJ.png" alt="Home" onclick="navigateTo('home')">
+        <img src="https://i.imgur.com/u1ZbYij.png" alt="Share" onclick="openShareDialog()">
+        <img src="https://i.imgur.com/6x9tICq.png" alt="Settings" onclick="navigateTo('settings')">
+        <img src="https://i.imgur.com/7vfoJ9w.png" alt="Profile" onclick="navigateTo('profile')">
+    </nav>
+
+    <!-- Home Page -->
+    <div id="homePage" class="page-content">
+        <h2>Welcome to Magic</h2>
+        <div class="video-list" id="videoList">
+            <p>No videos uploaded yet.</p>
+        </div>
+    </div>
+
+    <!-- Video Player Page -->
+    <div id="videoPlayerPage" class="page-content hidden">
+        <div class="video-player">
+            <h2 id="videoPlayerTitle">Video Title</h2>
+            <video id="videoPlayer" controls>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="progress-container">
+                <svg>
+                    <circle class="progress-background" cx="25" cy="25" r="20"></circle>
+                    <circle class="progress-circle" cx="25" cy="25" r="20"></circle>
+                </svg>
+            </div>
+            <button onclick="navigateTo('home')" style="margin-top: 20px;">Back to Home</button>
+        </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profilePage" class="page-content hidden">
+        <h2>Your Profile</h2>
+        <div class="profile">
+            <h3>Post a New Video</h3>
+            <form onsubmit="postVideoFromProfile(event)">
+                <input type="text" id="profileVideoTitle" placeholder="Enter video title" required>
+                <input type="file" id="profileVideoFile" accept="video/*" required>
+                <input type="file" id="profileVideoThumbnail" accept="image/*" required>
+                <button type="submit">Post Video</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settingsPage" class="page-content hidden">
+        <h2>Settings</h2>
+        <label>
+            <input type="radio" name="theme" onclick="setTheme('light')"> Light Mode
+        </label>
+        <label>
+            <input type="radio" name="theme" onclick="setTheme('dark')"> Dark Mode
+        </label>
+    </div>
+
+    <script>
+        let videoData = [];
+
+        function navigateTo(page) {
+            document.querySelectorAll('.page-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+            document.getElementById(`${page}Page`).classList.remove('hidden');
+        }
+
+        function postVideoFromProfile(event) {
+            event.preventDefault();
+            const title = document.getElementById('profileVideoTitle').value;
+            const videoFile = document.getElementById('profileVideoFile').files[0];
+            const thumbnailFile = document.getElementById('profileVideoThumbnail').files[0];
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                videoData.push({
+                    title,
+                    file: URL.createObjectURL(videoFile),
+                    thumbnail: e.target.result,
+                });
+                updateVideoList();
+            };
+            reader.readAsDataURL(thumbnailFile);
+        }
+
+        function updateVideoList() {
+            const videoList = document.getElementById('videoList');
+            videoList.innerHTML = '';
+            videoData.forEach((video, index) => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
+                videoItem.innerHTML = `
+                    <img src="${video.thumbnail}" alt="Thumbnail">
+                    <p>${video.title}</p>
+                `;
+                videoItem.onclick = () => openVideoPlayer(index);
+                videoList.appendChild(videoItem);
+            });
+        }
+
+        function openVideoPlayer(index) {
+            const video = videoData[index];
+            document.getElementById('videoPlayerTitle').textContent = video.title;
+            const videoPlayer = document.getElementById('videoPlayer');
+            videoPlayer.src = video.file;
+
+            videoPlayer.addEventListener('timeupdate', updateCircularProgress);
+            navigateTo('videoPlayer');
+        }
+
+        function updateCircularProgress() {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const progressCircle = document.querySelector('.progress-circle');
+            const circumference = 2 * Math.PI * 20; // Circumference = 2πr, radius = 20
+            const progress = videoPlayer.currentTime / videoPlayer.duration;
+            const offset = circumference - progress * circumference;
+            progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+    </script>
+</body>
+
+</html>
+<!-- partial -->
+  
+</body>
+</html>
