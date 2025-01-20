@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Untitled</title>
-  <link rel="stylesheet" href="./style.css">
+  
 
 </head>
 <body>
@@ -39,6 +39,11 @@
         .logo {
             font-size: 2.5rem;
             cursor: pointer;
+        }
+
+        .logo img {
+            width: 120px; /* Adjust the size of the logo */
+            height: auto;
         }
 
         .search-bar {
@@ -102,7 +107,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: row;
+            flex-direction: column; /* Changed to column for better alignment */
             padding: 20px;
             position: relative;
         }
@@ -124,6 +129,7 @@
             max-width: 800px;
             border: 1px solid #ddd;
             border-radius: 10px;
+            object-fit: cover;
         }
 
         /* Custom Share Modal */
@@ -215,13 +221,30 @@
             font-size: 1rem;
             margin-bottom: 15px;
         }
+
+        .miniature-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        /* Ensure spacing between the title and the share button */
+        .video-player h2 {
+            margin-bottom: 20px; /* Added margin to ensure space between title and share button */
+        }
+
     </style>
 </head>
 
 <body>
     <!-- Header -->
     <header>
-        <div class="logo" onclick="navigateTo('home')">Magic</div>
+        <div class="logo" onclick="navigateTo('home')">
+            <img src="https://i.imgur.com/fXWBUVS.jpeg" alt="Magic Logo"> <!-- Your logo image -->
+        </div>
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Search videos..." oninput="searchVideos(event)">
         </div>
@@ -239,7 +262,7 @@
     <div id="homePage" class="page-content">
         <h2>Welcome to Magic</h2>
         <div class="video-list" id="videoList">
-            <p>No videos uploaded yet.</p>
+            <p>No videos posted yet.</p>
         </div>
     </div>
 
@@ -248,7 +271,7 @@
         <div class="video-player">
             <!-- Share Button in Video Player -->
             <button class="share-button" onclick="openShareDialog()">
-                <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Share" style="width: 30px;">
+                <img src="https://i.imgur.com/u1ZbYij.png" alt="Share" style="width: 30px;">
             </button>
             <div>
                 <h2 id="videoPlayerTitle">Video Title</h2>
@@ -278,12 +301,13 @@
             <button onclick="saveCaption()">Save Caption</button>
         </div>
 
-        <!-- Upload and Post Video -->
+        <!-- Post Video -->
         <div class="setting-section">
-            <h3>Upload and Post Video</h3>
+            <h3>Post Video</h3>
             <input type="file" id="videoFile" accept="video/*">
             <input type="file" id="miniatureFile" accept="image/*">
-            <button onclick="uploadVideo()">Post Video</button>
+            <input type="text" id="captionInputPost" placeholder="Add a Caption">
+            <button onclick="postVideo()">Post Video</button>
         </div>
 
         <!-- Delete Video -->
@@ -347,7 +371,7 @@
         // Function to open the custom share dialog
         function openShareDialog() {
             const shareModal = document.getElementById('shareModal');
-            shareModal.style.display = 'flex'; // Show the modal
+            shareModal.style.display = 'flex';
         }
 
         // Function to close the custom share dialog
@@ -356,88 +380,111 @@
             shareModal.style.display = 'none'; // Hide the modal
         }
 
-        // Function to share the content on a specific app
+        // Function to share content on social media (just an example)
         function shareOnApp(app) {
-            let shareUrl = '';
-            const contentUrl = window.location.href; // The current page URL (can be changed to the content you want to share)
-
-            // Share URL based on the selected app
-            switch (app) {
-                case 'whatsapp':
-                    shareUrl = `https://wa.me/?text=${encodeURIComponent(contentUrl)}`;
-                    break;
-                case 'facebook':
-                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(contentUrl)}`;
-                    break;
-                case 'twitter':
-                    shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(contentUrl)}`;
-                    break;
-                default:
-                    alert('App not supported');
-                    return;
-            }
-
-            // Open the share dialog in a new tab
-            window.open(shareUrl, '_blank');
+            alert('Sharing on ' + app);
+            closeShareDialog();
         }
 
-        // Function to copy the current link to the clipboard
+        // Function to copy the video link
         function copyLinkToClipboard() {
-            const textArea = document.createElement('textarea');
-            textArea.value = window.location.href; // Current page URL
-            document.body.appendChild(textArea);
-            textArea.select(); // Select the content
-            document.execCommand('copy'); // Copy the content
-            document.body.removeChild(textArea); // Remove the textarea element
-
-            alert('Link copied to clipboard!');
+            const videoUrl = window.location.href;
+            navigator.clipboard.writeText(videoUrl).then(function () {
+                alert('Link copied to clipboard!');
+            });
         }
 
-        // Function to toggle theme
+        // Function to toggle dark/light theme
         function toggleTheme() {
-            if (theme === 'light') {
-                document.body.classList.add('dark-theme');
-                theme = 'dark';
-            } else {
-                document.body.classList.remove('dark-theme');
-                theme = 'light';
-            }
-        }
-
-        // Function to save caption
-        function saveCaption() {
-            const caption = document.getElementById('captionInput').value;
-            alert('Caption saved: ' + caption);
-        }
-
-        // Function to upload video
-        function uploadVideo() {
-            const videoFile = document.getElementById('videoFile').files[0];
-            const miniatureFile = document.getElementById('miniatureFile').files[0];
-            if (videoFile && miniatureFile) {
-                alert('Video and Miniature uploaded successfully!');
-            } else {
-                alert('Please select both video and miniature files.');
-            }
-        }
-
-        // Function to delete video
-        function deleteVideo() {
-            alert('Video deleted successfully!');
-        }
-
-        // Function to set schedule
-        function setSchedule() {
-            const scheduleDate = document.getElementById('scheduleDate').value;
-            alert('Video scheduled for: ' + scheduleDate);
+            const body = document.body;
+            body.classList.toggle('dark-theme');
         }
 
         // Function to navigate between pages
         function navigateTo(page) {
-            document.querySelectorAll('.page-content').forEach(content => {
-                content.classList.add('hidden');
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('videoPlayerPage').classList.add('hidden');
+            document.getElementById('settingsPage').classList.add('hidden');
+            document.getElementById('profilePage').classList.add('hidden');
+
+            document.getElementById(page + 'Page').classList.remove('hidden');
+        }
+
+        // Function to search videos (stubbed)
+        function searchVideos(event) {
+            const query = event.target.value.toLowerCase();
+            const filteredVideos = videoData.filter(video =>
+                video.title.toLowerCase().includes(query)
+            );
+            renderVideos(filteredVideos);
+        }
+
+        // Function to render videos
+        function renderVideos(videos) {
+            const videoList = document.getElementById('videoList');
+            videoList.innerHTML = '';
+            if (videos.length === 0) {
+                videoList.innerHTML = '<p>No videos found.</p>';
+            }
+            videos.forEach(video => {
+                const videoItem = document.createElement('div');
+                videoItem.classList.add('video-item');
+                videoItem.innerHTML = `
+                    <img src="${video.thumbnail}" alt="${video.title}">
+                    <div>
+                        <h3>${video.title}</h3>
+                        <p>${video.description}</p>
+                    </div>
+                `;
+                videoItem.onclick = () => openVideoPlayer(video);
+                videoList.appendChild(videoItem);
             });
-            document.getElementById(`${page}Page`).classList.remove('hidden');
+        }
+
+        // Function to open a video in the player
+        function openVideoPlayer(video) {
+            const videoPlayer = document.getElementById('videoPlayer');
+            const videoPlayerTitle = document.getElementById('videoPlayerTitle');
+            videoPlayerTitle.innerText = video.title;
+            videoPlayer.src = video.url;
+
+            navigateTo('videoPlayer');
+        }
+
+        // Function to post a video (stubbed)
+        function postVideo() {
+            const videoFile = document.getElementById('videoFile').files[0];
+            const miniatureFile = document.getElementById('miniatureFile').files[0];
+            const caption = document.getElementById('captionInputPost').value;
+
+            if (!videoFile || !miniatureFile) {
+                alert('Please select a video and a miniature to post.');
+                return;
+            }
+
+            // Example logic for posting a video
+            const newVideo = {
+                title: caption || 'New Video',
+                description: 'This is a new video.',
+                url: URL.createObjectURL(videoFile), // Using a temporary URL for the video
+                thumbnail: URL.createObjectURL(miniatureFile), // Temporary URL for the thumbnail
+            };
+
+            videoData.push(newVideo);
+            renderVideos(videoData); // Render updated video list
+
+            alert('Video posted successfully!');
+        }
+
+        // Function to delete a video (stubbed)
+        function deleteVideo() {
+            alert('Deleting video...');
+        }
+
+        // Function to set a video schedule (stubbed)
+        function setSchedule() {
+            const scheduleDate = document.getElementById('scheduleDate').value;
+            alert('Video scheduled for: ' + scheduleDate);
         }
     </script>
 </body>
