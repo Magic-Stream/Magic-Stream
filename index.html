@@ -42,7 +42,7 @@
         }
 
         .logo img {
-            width: 120px; /* Adjust the size of the logo */
+            width: 120px;
             height: auto;
         }
 
@@ -107,7 +107,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-direction: column; /* Changed to column for better alignment */
+            flex-direction: column;
             padding: 20px;
             position: relative;
         }
@@ -130,6 +130,41 @@
             border: 1px solid #ddd;
             border-radius: 10px;
             object-fit: cover;
+        }
+
+        .caption-input,
+        .miniature-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .video-player h2 {
+            margin-bottom: 20px;
+        }
+
+        .video-player .progress-bar {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid #4CAF50;
+            animation: rotate 1s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         /* Custom Share Modal */
@@ -198,7 +233,21 @@
             margin-top: 20px;
         }
 
-        /* Dark Mode */
+        /* Profile and Stream Section */
+        .profile-section,
+        .stream-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .stream-section img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+        }
+
         body.dark-theme {
             background-color: #333;
             color: #fff;
@@ -211,46 +260,19 @@
         body.dark-theme nav {
             background-color: #444;
         }
-
-        /* Caption Customization */
-        .caption-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            margin-bottom: 15px;
-        }
-
-        .miniature-input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 1rem;
-            margin-bottom: 15px;
-        }
-
-        /* Ensure spacing between the title and the share button */
-        .video-player h2 {
-            margin-bottom: 20px; /* Added margin to ensure space between title and share button */
-        }
-
     </style>
 </head>
 
 <body>
-    <!-- Header -->
     <header>
         <div class="logo" onclick="navigateTo('home')">
-            <img src="https://i.imgur.com/fXWBUVS.jpeg" alt="Magic Logo"> <!-- Your logo image -->
+            <img src="https://i.imgur.com/fXWBUVS.jpeg" alt="Magic Logo">
         </div>
         <div class="search-bar">
             <input type="text" id="searchInput" placeholder="Search videos..." oninput="searchVideos(event)">
         </div>
     </header>
 
-    <!-- Navigation Bar -->
     <nav>
         <img src="https://i.imgur.com/CMpHtMJ.png" alt="Home" onclick="navigateTo('home')">
         <img src="https://i.imgur.com/u1ZbYij.png" alt="Share" onclick="openShareDialog()">
@@ -269,16 +291,17 @@
     <!-- Video Player Page -->
     <div id="videoPlayerPage" class="page-content hidden">
         <div class="video-player">
-            <!-- Share Button in Video Player -->
             <button class="share-button" onclick="openShareDialog()">
                 <img src="https://i.imgur.com/u1ZbYij.png" alt="Share" style="width: 30px;">
             </button>
             <div>
                 <h2 id="videoPlayerTitle">Video Title</h2>
+                <p id="videoPlayerCaption">Caption goes here...</p>
                 <video id="videoPlayer" controls>
                     <source src="" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
+                <div class="progress-bar"></div>
             </div>
         </div>
         <button onclick="navigateTo('home')" style="margin-top: 20px;">Back to Home</button>
@@ -287,50 +310,42 @@
     <!-- Settings Page -->
     <div id="settingsPage" class="page-content hidden">
         <h2>Settings</h2>
-
-        <!-- Dark/Light Theme Toggle -->
         <div class="setting-section">
-            <h3>Theme</h3>
+            <h3>Dark/Light Theme</h3>
             <button onclick="toggleTheme()">Toggle Dark/Light Theme</button>
         </div>
 
-        <!-- Caption Customization -->
-        <div class="setting-section">
-            <h3>Customize Caption</h3>
-            <textarea id="captionInput" class="caption-input" placeholder="Enter a vibrant caption"></textarea>
-            <button onclick="saveCaption()">Save Caption</button>
-        </div>
-
-        <!-- Post Video -->
         <div class="setting-section">
             <h3>Post Video</h3>
             <input type="file" id="videoFile" accept="video/*">
             <input type="file" id="miniatureFile" accept="image/*">
-            <input type="text" id="captionInputPost" placeholder="Add a Caption">
+            <textarea id="captionInputPost" placeholder="Add a Caption"></textarea>
             <button onclick="postVideo()">Post Video</button>
         </div>
 
-        <!-- Delete Video -->
         <div class="setting-section">
             <h3>Delete Video</h3>
             <button onclick="deleteVideo()">Delete Video</button>
         </div>
 
-        <!-- Schedule Video -->
         <div class="setting-section">
-            <h3>Schedule Video</h3>
-            <input type="datetime-local" id="scheduleDate">
-            <button onclick="setSchedule()">Set Schedule</button>
+            <h3>Create Stream</h3>
+            <input type="file" id="streamImage" accept="image/*">
+            <input type="text" id="streamName" placeholder="Stream Name">
+            <button onclick="createStream()">Create Stream</button>
         </div>
-
-        <!-- Back to Home -->
-        <button onclick="navigateTo('home')" style="margin-top: 20px;">Back to Home</button>
     </div>
 
     <!-- Profile Page -->
     <div id="profilePage" class="page-content hidden">
         <h2>Your Profile</h2>
-        <p>No video posted yet.</p>
+        <div class="profile-section">
+            <h3>Stream Details</h3>
+            <div class="stream-section">
+                <img src="" id="streamLogo" alt="Stream Logo">
+                <h3 id="streamNameDisplay">Stream Name</h3>
+            </div>
+        </div>
     </div>
 
     <!-- Share Modal -->
@@ -338,7 +353,6 @@
         <div class="share-modal-content">
             <h3>Share this content</h3>
 
-            <!-- Share options -->
             <div class="share-option" onclick="shareOnApp('whatsapp')">
                 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/120px-WhatsApp.svg.png" alt="WhatsApp">
                 <span>WhatsApp</span>
@@ -354,137 +368,98 @@
                 <span>Twitter</span>
             </div>
 
-            <!-- Link share option -->
-            <div class="link-share" onclick="copyLinkToClipboard()">
-                Copy Link
-            </div>
+            <div class="link-share" onclick="copyLinkToClipboard()">Copy Link</div>
 
-            <!-- Close button -->
             <button onclick="closeShareDialog()">Close</button>
         </div>
     </div>
 
     <script>
-        let videoData = [];
-        let theme = 'light';
+        // Functions for navigating pages
+        let currentPage = 'home';
+        
+        function navigateTo(page) {
+            document.getElementById(`${currentPage}Page`).classList.add('hidden');
+            document.getElementById(`${page}Page`).classList.remove('hidden');
+            currentPage = page;
+        }
 
-        // Function to open the custom share dialog
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+        }
+
+        // Share Modal
         function openShareDialog() {
-            const shareModal = document.getElementById('shareModal');
-            shareModal.style.display = 'flex';
+            document.getElementById('shareModal').style.display = 'flex';
         }
 
-        // Function to close the custom share dialog
         function closeShareDialog() {
-            const shareModal = document.getElementById('shareModal');
-            shareModal.style.display = 'none'; // Hide the modal
+            document.getElementById('shareModal').style.display = 'none';
         }
 
-        // Function to share content on social media (just an example)
         function shareOnApp(app) {
-            alert('Sharing on ' + app);
+            alert(`Sharing on ${app}`);
             closeShareDialog();
         }
 
-        // Function to copy the video link
         function copyLinkToClipboard() {
-            const videoUrl = window.location.href;
-            navigator.clipboard.writeText(videoUrl).then(function () {
-                alert('Link copied to clipboard!');
-            });
+            alert('Link copied to clipboard');
+            closeShareDialog();
         }
 
-        // Function to toggle dark/light theme
-        function toggleTheme() {
-            const body = document.body;
-            body.classList.toggle('dark-theme');
-        }
-
-        // Function to navigate between pages
-        function navigateTo(page) {
-            document.getElementById('homePage').classList.add('hidden');
-            document.getElementById('videoPlayerPage').classList.add('hidden');
-            document.getElementById('settingsPage').classList.add('hidden');
-            document.getElementById('profilePage').classList.add('hidden');
-
-            document.getElementById(page + 'Page').classList.remove('hidden');
-        }
-
-        // Function to search videos (stubbed)
-        function searchVideos(event) {
-            const query = event.target.value.toLowerCase();
-            const filteredVideos = videoData.filter(video =>
-                video.title.toLowerCase().includes(query)
-            );
-            renderVideos(filteredVideos);
-        }
-
-        // Function to render videos
-        function renderVideos(videos) {
-            const videoList = document.getElementById('videoList');
-            videoList.innerHTML = '';
-            if (videos.length === 0) {
-                videoList.innerHTML = '<p>No videos found.</p>';
-            }
-            videos.forEach(video => {
-                const videoItem = document.createElement('div');
-                videoItem.classList.add('video-item');
-                videoItem.innerHTML = `
-                    <img src="${video.thumbnail}" alt="${video.title}">
-                    <div>
-                        <h3>${video.title}</h3>
-                        <p>${video.description}</p>
-                    </div>
-                `;
-                videoItem.onclick = () => openVideoPlayer(video);
-                videoList.appendChild(videoItem);
-            });
-        }
-
-        // Function to open a video in the player
-        function openVideoPlayer(video) {
-            const videoPlayer = document.getElementById('videoPlayer');
-            const videoPlayerTitle = document.getElementById('videoPlayerTitle');
-            videoPlayerTitle.innerText = video.title;
-            videoPlayer.src = video.url;
-
-            navigateTo('videoPlayer');
-        }
-
-        // Function to post a video (stubbed)
+        // Post video
         function postVideo() {
             const videoFile = document.getElementById('videoFile').files[0];
             const miniatureFile = document.getElementById('miniatureFile').files[0];
             const caption = document.getElementById('captionInputPost').value;
 
-            if (!videoFile || !miniatureFile) {
-                alert('Please select a video and a miniature to post.');
-                return;
+            if (videoFile && miniatureFile && caption) {
+                const videoURL = URL.createObjectURL(videoFile);
+                const miniatureURL = URL.createObjectURL(miniatureFile);
+                const videoItem = document.createElement('div');
+                videoItem.classList.add('video-item');
+
+                videoItem.innerHTML = `
+                    <img src="${miniatureURL}" alt="Video Thumbnail">
+                    <div>
+                        <h3>${caption}</h3>
+                        <p>Posted Video</p>
+                    </div>
+                `;
+                document.getElementById('videoList').appendChild(videoItem);
+                navigateTo('home');
+            } else {
+                alert('Please fill out all fields');
             }
-
-            // Example logic for posting a video
-            const newVideo = {
-                title: caption || 'New Video',
-                description: 'This is a new video.',
-                url: URL.createObjectURL(videoFile), // Using a temporary URL for the video
-                thumbnail: URL.createObjectURL(miniatureFile), // Temporary URL for the thumbnail
-            };
-
-            videoData.push(newVideo);
-            renderVideos(videoData); // Render updated video list
-
-            alert('Video posted successfully!');
         }
 
-        // Function to delete a video (stubbed)
         function deleteVideo() {
-            alert('Deleting video...');
+            alert('Video deleted');
         }
 
-        // Function to set a video schedule (stubbed)
-        function setSchedule() {
-            const scheduleDate = document.getElementById('scheduleDate').value;
-            alert('Video scheduled for: ' + scheduleDate);
+        // Create stream
+        function createStream() {
+            const streamImage = document.getElementById('streamImage').files[0];
+            const streamName = document.getElementById('streamName').value;
+
+            if (streamImage && streamName) {
+                const streamLogoURL = URL.createObjectURL(streamImage);
+                document.getElementById('streamLogo').src = streamLogoURL;
+                document.getElementById('streamNameDisplay').textContent = streamName;
+                navigateTo('profile');
+            } else {
+                alert('Please provide stream name and logo');
+            }
+        }
+
+        // Video search functionality
+        function searchVideos(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            const videoItems = document.querySelectorAll('.video-item');
+            videoItems.forEach(item => {
+                const title = item.querySelector('h3').textContent.toLowerCase();
+                item.style.display = title.includes(searchTerm) ? 'flex' : 'none';
+            });
         }
     </script>
 </body>
