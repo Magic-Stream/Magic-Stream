@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic - Video Streaming App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+    <!-- Add Plyr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.css">
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Bebas Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #f5f5f5;
+        }
+
+        header {
+            background-color: #000000;
+            color: white;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            cursor: pointer;
+        }
+
+        .logo img {
+            width: 120px;
+            height: auto;
+        }
+
+        .search-bar {
+            flex: 1;
+            margin-left: 20px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 10px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            background-color: #2a2a2a;
+            color: #f5f5f5;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-around;
+            background-color: #1e1e1e;
+            padding: 10px 0;
+            border-top: 1px solid #333;
+            border-bottom: 1px solid #333;
+        }
+
+        nav img {
+            width: 30px;
+            cursor: pointer;
+            filter: invert(1);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .page-content {
+            padding: 20px;
+        }
+
+        .video-list {
+            margin-top: 20px;
+        }
+
+        .video-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #1e1e1e;
+            cursor: pointer;
+        }
+
+        .video-item img {
+            width: 100px;
+            height: 60px;
+            margin-right: 15px;
+            object-fit: cover;
+        }
+
+        .video-player {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+            position: relative;
+        }
+
+        .video-player-container {
+            width: 100%;
+            max-width: 1280px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+            position: relative;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+        }
+
+        .video-player-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Custom Plyr Styling */
+        .plyr {
+            --plyr-color-main: #e50914;
+            --plyr-video-control-color: #fff;
+            --plyr-video-control-color-hover: #e50914;
+            --plyr-video-control-background-hover: rgba(0, 0, 0, 0.5);
+            --plyr-audio-control-color: #fff;
+            --plyr-audio-control-color-hover: #e50914;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .plyr--video {
+            background: #000;
+        }
+
+        .plyr__control--overlaid {
+            background: rgba(229, 9, 20, 0.8);
+        }
+
+        .plyr__control--overlaid:hover {
+            background: rgba(229, 9, 20, 1);
+        }
+
+        .plyr__menu__container {
+            background: #1e1e1e;
+            border-radius: 6px;
+        }
+
+        .plyr__menu__container .plyr__control {
+            color: #fff;
+        }
+
+        .plyr__menu__container .plyr__control--forward {
+            color: #fff;
+        }
+
+        .plyr__menu__container .plyr__menu__back {
+            color: #fff;
+            border-color: #444;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #2a2a2a;
+            color: #f5f5f5;
+            border: 1px solid #444;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #444;
+        }
+
+        .caption-input,
+        .miniature-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            font-size: 1rem;
+            margin-bottom: 15px;
+            background-color: #2a2a2a;
+            color: #f5f5f5;
+        }
+
+        .video-player h2 {
+            margin-bottom: 20px;
+        }
+
+        /* Removed the circular green progress-bar */
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Custom Share Modal */
+        .share-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .share-modal-content {
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid #444;
+        }
+
+        .share-modal button {
+            padding: 10px;
+            margin: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .share-modal button:hover {
+            background-color: #45a049;
+        }
+
+        .share-option {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px 0;
+            cursor: pointer;
+            padding: 10px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #2a2a2a;
+        }
+
+        .share-option img {
+            margin-right: 10px;
+            width: 30px;
+            filter: invert(1);
+        }
+
+        .link-share {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .setting-section {
+            margin-top: 20px;
+            background-color: #1e1e1e;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+
+        /* Profile and Stream Section */
+        .profile-section,
+        .stream-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            background-color: #1e1e1e;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #333;
+        }
+
+        .stream-section img {
+            width: 100px;
+            height: 100px;
+            border-radius: 0; /* Square image */
+            object-fit: cover;
+            border: 1px solid #444;
+        }
+
+        /* File inputs styling */
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #2a2a2a;
+            color: #f5f5f5;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #2a2a2a;
+            color: #f5f5f5;
+            border: 1px solid #444;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Updated Toast notification styling */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(51, 51, 51, 0.9);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 1001;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            font-size: 1.1rem;
+            min-width: 200px;
+            max-width: 80%;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            animation: pulse 0.3s ease-in-out;
+        }
+
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(0.95); }
+            50% { transform: translate(-50%, -50%) scale(1.02); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* Empty state for video list */
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-size: 1.2rem;
+        }
+
+        /* Video Info Container */
+        .video-info {
+            background-color: #1e1e1e;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            width: 100%;
+            max-width: 1280px;
+            border: 1px solid #333;
+        }
+
+        .video-info h2 {
+            margin-top: 0;
+            color: #e50914;
+        }
+
+        .video-info p {
+            margin-bottom: 5px;
+            font-size: 16px;
+            font-family: Arial, sans-serif;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo" onclick="navigateTo('home')">
+            <img src="https://i.imgur.com/fXWBUVS.jpeg" alt="Magic Logo">
+        </div>
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search videos..." oninput="searchVideos(event)">
+        </div>
+    </header>
+
+    <nav>
+        <img src="https://i.imgur.com/CMpHtMJ.png" alt="Home" onclick="navigateTo('home')">
+        <img src="https://i.imgur.com/u1ZbYij.png" alt="Share" onclick="openShareDialog()">
+        <img src="https://i.imgur.com/6x9tICq.png" alt="Settings" onclick="navigateTo('settings')">
+        <img src="https://i.imgur.com/7vfoJ9w.png" alt="Profile" onclick="navigateTo('profile')">
+    </nav>
+
+    <!-- Home Page -->
+    <div id="homePage" class="page-content">
+        <h2>Welcome to Magic</h2>
+        <div class="video-list" id="videoList">
+            <div class="empty-state">
+                <p>No videos posted yet. Go to Settings to post your first video!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Video Player Page -->
+    <div id="videoPlayerPage" class="page-content hidden">
+        <div class="video-player">            
+            <div class="video-player-container">
+                <video id="videoPlayer" playsinline controls>
+                    <source id="videoSource" src="" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            
+            <div class="video-info">
+                <h2 id="videoPlayerTitle">Video Title</h2>
+                <p id="videoPlayerCaption">Caption goes here...</p>
+            </div>
+            
+            <!-- Removed the progress-bar div -->
+        </div>
+        <button onclick="navigateTo('home')" style="margin-top: 20px;">Back to Home</button>
+    </div>
+
+    <!-- Settings Page -->
+    <div id="settingsPage" class="page-content hidden">
+        <h2>Settings</h2>
+        <div class="setting-section">
+            <h3>Post Video</h3>
+            <input type="file" id="videoFile" accept="video/*">
+            <input type="file" id="miniatureFile" accept="image/*">
+            <textarea id="captionInputPost" placeholder="Add a Caption"></textarea>
+            <button onclick="postVideo()">Post Video</button>
+        </div>
+
+        <div class="setting-section">
+            <h3>Delete Video</h3>
+            <button onclick="deleteVideo()">Delete Video</button>
+        </div>
+
+        <div class="setting-section">
+            <h3>Create Stream</h3>
+            <input type="file" id="streamImage" accept="image/*">
+            <input type="text" id="streamName" placeholder="Stream Name">
+            <button onclick="createStream()">Create Stream</button>
+        </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div id="profilePage" class="page-content hidden">
+        <h2>Your Profile</h2>
+        <div class="profile-section">
+            <h3>Stream Details</h3>
+            <div class="stream-section">
+                <img src="https://i.imgur.com/PMTyIj1.jpeg" id="streamLogo" alt="Stream Logo">
+                <h3 id="streamNameDisplay">Your Stream</h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- Share Modal -->
+    <div id="shareModal" class="share-modal" style="display:none;">
+        <div class="share-modal-content">
+            <h3>Share this content</h3>
+
+            <div class="share-option" onclick="shareOnApp('whatsapp')">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/120px-WhatsApp.svg.png" alt="WhatsApp">
+                <span>WhatsApp</span>
+            </div>
+
+            <div class="share-option" onclick="shareOnApp('facebook')">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/5/51/Facebook_f_logo_%282019%29.svg" alt="Facebook">
+                <span>Facebook</span>
+            </div>
+
+            <div class="share-option" onclick="shareOnApp('twitter')">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/6/60/Twitter_Logo_As_of_2021.svg" alt="Twitter">
+                <span>Twitter</span>
+            </div>
+
+            <div class="link-share" onclick="copyLinkToClipboard()">Copy Link</div>
+
+            <button onclick="closeShareDialog()">Close</button>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Add Plyr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.js"></script>
+    
+    <script>
+        // Current Video being played
+        let currentVideo = {
+            title: '',
+            caption: '',
+            url: ''
+        };
+
+        // Initialize Plyr player when document loads
+        let player;
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize the player
+            player = new Plyr('#videoPlayer', {
+                controls: [
+                    'play-large', 'play', 'progress', 'current-time', 'mute', 
+                    'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'
+                ]
+            });
+            
+            // Add event listeners
+            player.on('ready', () => {
+                console.log('Player is ready');
+            });
+            
+            player.on('error', (error) => {
+                console.error('Plyr error:', error);
+                showToast('Error playing video');
+            });
+        });
+
+        // Functions for navigating pages
+        let currentPage = 'home';
+        
+        function navigateTo(page) {
+            document.getElementById(`${currentPage}Page`).classList.add('hidden');
+            document.getElementById(`${page}Page`).classList.remove('hidden');
+            currentPage = page;
+            
+            // If we're leaving the video page, pause the video
+            if (page !== 'videoPlayer' && player) {
+                player.pause();
+            }
+        }
+
+        // Play Video Function - Updated to remove progress-bar references
+        function playVideo(title, caption, videoUrl) {
+            // Update current video data
+            currentVideo = {
+                title: title,
+                caption: caption,
+                url: videoUrl
+            };
+            
+            // Update video player display info
+            document.getElementById('videoPlayerTitle').textContent = title;
+            document.getElementById('videoPlayerCaption').textContent = caption;
+            
+            // Navigate to video player page
+            navigateTo('videoPlayer');
+            
+            // Set source directly for HTML5 video element first
+            const videoElement = document.getElementById('videoPlayer');
+            const videoSource = document.getElementById('videoSource');
+            videoSource.src = videoUrl;
+            videoElement.load(); // Important: need to call load after changing source
+            
+            // Then update Plyr source
+            if (player) {
+                player.source = {
+                    type: 'video',
+                    sources: [{
+                        src: videoUrl,
+                        type: 'video/mp4'
+                    }]
+                };
+                
+                // Try to play the video
+                setTimeout(() => {
+                    player.play()
+                        .then(() => {
+                            console.log('Video playback started');
+                        })
+                        .catch(error => {
+                            console.error('Autoplay prevented:', error);
+                            showToast('Click play to start video');
+                        });
+                }, 500); // Short delay to ensure player is ready
+            }
+        }
+
+        // Share Modal
+        function openShareDialog() {
+            document.getElementById('shareModal').style.display = 'flex';
+        }
+
+        function closeShareDialog() {
+            document.getElementById('shareModal').style.display = 'none';
+        }
+
+        // Share functionality
+        function shareOnApp(app) {
+            const shareText = `Check out this video: ${currentVideo.title} - ${currentVideo.caption}`;
+            const shareUrl = window.location.href;
+            
+            let shareLink = '';
+            
+            switch(app) {
+                case 'whatsapp':
+                    shareLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + shareUrl)}`;
+                    break;
+                case 'facebook':
+                    shareLink = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}&quote=${encodeURIComponent(shareText)}`;
+                    break;
+                case 'twitter':
+                    shareLink = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(shareUrl)}`;
+                    break;
+                default:
+                    shareLink = '';
+            }
+            
+            if (shareLink) {
+                // Open in new window if on a device that supports it
+                window.open(shareLink, '_blank');
+            }
+            
+            showToast(`Shared on ${app.charAt(0).toUpperCase() + app.slice(1)}!`);
+            closeShareDialog();
+        }
+
+        function copyLinkToClipboard() {
+            const shareUrl = window.location.href;
+            
+            // Use the clipboard API if available
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(shareUrl)
+                    .then(() => {
+                        showToast('Link copied to clipboard!');
+                    })
+                    .catch(err => {
+                        showToast('Failed to copy: ' + err);
+                    });
+            } else {
+                // Fallback method
+                const textArea = document.createElement('textarea');
+                textArea.value = shareUrl;
+                
+                // Make the textarea out of viewport
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-999999px';
+                textArea.style.top = '-999999px';
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    showToast(successful ? 'Link copied to clipboard!' : 'Unable to copy link');
+                } catch (err) {
+                    showToast('Failed to copy: ' + err);
+                }
+                
+                document.body.removeChild(textArea);
+            }
+            
+            closeShareDialog();
+        }
+
+        // Toast notification
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2500); // Hide after 2.5 seconds
+        }
+
+        // Post video
+        function postVideo() {
+            const videoFile = document.getElementById('videoFile').files[0];
+            const miniatureFile = document.getElementById('miniatureFile').files[0];
+            const caption = document.getElementById('captionInputPost').value;
+
+            if (!videoFile || !miniatureFile || !caption) {
+                showToast('Please fill out all fields');
+                return;
+            }
+            
+            // Validate file types
+            if (!videoFile.type.startsWith('video/')) {
+                showToast('Please select a valid video file');
+                return;
+            }
+            
+            if (!miniatureFile.type.startsWith('image/')) {
+                showToast('Please select a valid image file for thumbnail');
+                return;
+            }
+            
+            // Create URLs for the files
+            const videoURL = URL.createObjectURL(videoFile);
+            const miniatureURL = URL.createObjectURL(miniatureFile);
+            
+            // Remove empty state if it exists
+            const emptyState = document.querySelector('.empty-state');
+            if (emptyState) {
+                emptyState.remove();
+            }
+            
+            // Create video item element
+            const videoItem = document.createElement('div');
+            videoItem.classList.add('video-item');
+            videoItem.dataset.videoUrl = videoURL;
+            
+            // Make the video item clickable to play
+            videoItem.onclick = function() {
+                playVideo(caption, 'Your posted video', videoURL);
+            };
+
+            videoItem.innerHTML = `
+                <img src="${miniatureURL}" alt="Video Thumbnail">
+                <div>
+                    <h3>${caption}</h3>
+                    <p>Posted by You</p>
+                </div>
+            `;
+            
+            document.getElementById('videoList').appendChild(videoItem);
+            showToast('Video posted successfully!');
+            
+            // Clear the form
+            document.getElementById('videoFile').value = '';
+            document.getElementById('miniatureFile').value = '';
+            document.getElementById('captionInputPost').value = '';
+            
+            navigateTo('home');
+        }
+
+        function deleteVideo() {
+            // Get all videos by the user
+            const userVideos = Array.from(document.querySelectorAll('.video-item')).filter(
+                item => item.querySelector('p').textContent === 'Posted by You'
+            );
+            
+            if (userVideos.length > 0) {
+                // Remove the last video posted by the user
+                userVideos[userVideos.length - 1].remove();
+                showToast('Video deleted successfully!');
+                
+                // If no videos left, show the "no videos" message
+                if (document.querySelectorAll('.video-item').length === 0) {
+                    const emptyState = document.createElement('div');
+                    emptyState.classList.add('empty-state');
+                    emptyState.innerHTML = '<p>No videos posted yet. Go to Settings to post your first video!</p>';
+                    document.getElementById('videoList').appendChild(emptyState);
+                }
+            } else {
+                showToast('No videos to delete');
+            }
+        }
+
+        // Create stream
+        function createStream() {
+            const streamImage = document.getElementById('streamImage').files[0];
+            const streamName = document.getElementById('streamName').value;
+
+            if (!streamImage || !streamName) {
+                showToast('Please provide stream name and logo');
+                return;
+            }
+            
+            // Validate image file
+            if (!streamImage.type.startsWith('image/')) {
+                showToast('Please select a valid image file');
+                return;
+            }
+            
+            const streamLogoURL = URL.createObjectURL(streamImage);
+            document.getElementById('streamLogo').src = streamLogoURL;
+            document.getElementById('streamNameDisplay').textContent = streamName;
+            showToast('Stream created successfully!');
+            
+            // Clear the form
+            document.getElementById('streamImage').value = '';
+            document.getElementById('streamName').value = '';
+            
+            navigateTo('profile');
+        }
+
+        // Video search functionality
+        function searchVideos(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            const videoItems = document.querySelectorAll('.video-item');
+            
+            // If there are no videos yet, nothing to search
+            if (videoItems.length === 0) {
+                return;
+            }
+            
+            // If no search term, show all videos
+            if (!searchTerm) {
+                videoItems.forEach(item => {
+                    item.style.display = 'flex';
+                });
+                
+                // Remove any "no results" message
+                const noResultsMsg = document.getElementById('noResultsMsg');
+                if (noResultsMsg) noResultsMsg.remove();
+                
+                return;
+            }
+            
+            let found = false;
+            
+            videoItems.forEach(item => {
+                const title = item.querySelector('h3').textContent.toLowerCase();
+                const isVisible = title.includes(searchTerm);
+                item.style.display = isVisible ? 'flex' : 'none';
+                if (isVisible) found = true;
+            });
+            
+            // Show a message if no videos match the search
+            const noResultsMsg = document.getElementById('noResultsMsg');
+            if (!found) {
+                if (!noResultsMsg) {
+                    const msg = document.createElement('p');
+                    msg.id = 'noResultsMsg';
+                    msg.textContent = 'No videos match your search';
+                    document.getElementById('videoList').appendChild(msg);
+                }
+            } else if (noResultsMsg) {
+                noResultsMsg.remove();
+            }
+        }
+
+        // Removed the sample video loading code
+    </script>
+</body>
+
+</html>
